@@ -23,7 +23,7 @@ def send_cards(message):
 		file = open(f'tarot_cards/{card_number}.webp', 'rb')
 		bot.send_sticker(message.chat.id, file, reply_to_message_id=message.message_id)
 
-	msg = 'Вот расклад для тебя.'
+	msg = 'Вот расклад для тебя ✨'
 	bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
 
 bot.infinity_polling()

@@ -1,2 +1,4 @@
 python-dotenv
 pytelegrambotapi
+aiohttp
+mysql-connector-python

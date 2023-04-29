@@ -6,3 +6,21 @@ services:
     volumes:
     - ./:/home/python/app
     command: bash -c "pip install --no-cache-dir -r requirements.txt && python bot.py"
+    depends_on:
+    - mysql
+  mysql:
+    image: mysql:8.0.29
+    command: --init-file /data/application/init_mysql.sql
+    volumes:
+    - ./docker/init_mysql.sql:/data/application/init_mysql.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: homestead
+    ports:
+      - 3306:3306
+  adminer:
+    image: adminer:4.8.1
+    ports:
+      - 8080:8080

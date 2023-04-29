@@ -109,8 +109,7 @@ async def send_prediction(bot, message):
     for card_number in card_numbers:
         file = open(f'tarot_cards/{card_number}.webp', 'rb')
         await bot.send_sticker(message.chat.id, file, reply_to_message_id=message.message_id)
-        await bot.send_message(message.chat.id, cardsNames[card_number], reply_to_message_id=message.message_id)
-        
+
     msg = 'Вот расклад для тебя ✨'
     await bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
 

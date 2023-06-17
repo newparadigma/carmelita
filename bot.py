@@ -17,86 +17,94 @@ mydb = mysql.connector.connect(
 load_dotenv()
 
 bot = AsyncTeleBot(os.getenv('BOT_TOKEN'))
+botName = os.getenv('BOT_NAME')
+
+# print(botName)
+# exit(0)
 
 cardsNames = (
-'дурак', 
-'верховная жриц',
-'фоккусник',
-'императрица',
-'император',
-'отшельник',
-'любовники',
-'колесница',
-'сила',
-'отшельник',
-'10.web',
-'11.web',
-'12.web', 
-'13.web',
-'14.web',
-'15.web',
-'16.web',
-'17.web',
-'18.web',
-'19.web',
-'20.web',
-'21.web',
-'22.web',
-'23.web',
-'24.web', 
-'25.web',
-'26.web',
-'27.web',
-'28.web',
-'29.web',
-'30.web',
-'31.web',
-'32.web',
-'33.web',
-'34.web',
-'35.web',
-'36.web',
-'37.web',
-'38.web',
-'39.web',
-'40.web',
-'41.web',
-'42.web',
-'43.web',
-'44.web',
-'45.web',
-'46.web',
-'47.web',
-'48.web',
-'50.web',
-'50.web',
-'51.web',
-'52.web',
-'53.web',
-'54.web',
-'55.web',
-'56.web',
-'57.web',
-'58.web',
-'59.web',
-'60.web',
-'61.web',
-'62.web',
-'63.web',
-'64.web',
-'65.web',
-'66.web',
-'67.web',
-'68.web',
-'69.web',
-'70.web',
-'71.web',
-'72.web',
-'73.web',
-'74.web',
-'75.web',
-'76.web',
-'77.web',
+'шут', #0
+'маг',#1
+'жрица', #2
+'императрица', #3
+'император', #4
+'жрец', #5
+'влюблёные', #6
+'колесница', #7
+'сила', #8
+'отшельник', #9
+'фортуна', #10
+'справедливость', #11
+'повешенный', #12
+'смерть', #13
+'умеренность', #14
+'дьявол', #15
+'башня', #16
+'звезда', #17
+'луна', #18
+'солнце', #19
+'суд', #20
+'мир', #21
+
+'туз жезлов', #22
+'двойка жезлов', #23
+'тройка жезлов', #24
+'четверка жезлов', #25
+'пятерка жезлов', #26
+'шестерка жезлов', #27
+'семерка жезлов', #28
+'восьмерка жезлов', #29
+'девятка жезлов', #30
+'десятка жезлов', #31
+'паж жезлов', #32
+'рыцарь жезлов', #33
+'королева жезлов', #34
+'король жезлов', #35
+
+'туз пентаклей', #36
+'двойка пентаклей', #37
+'тройка пентаклей', #38
+'четверка пентаклей', #39
+'пятерка пентаклей', #40
+'шестерка пентаклей', #41
+'семерка пентаклей', #42
+'восьмерка пентаклей', #43
+'девятка пентаклей', #44
+'десятка пентаклей', #45
+'паж пентаклей', #46 
+'рыцарь пентаклей', #47
+'королева пентаклей', #48
+'король пентаклей', #49
+
+'туз кубков', #50
+'двойка кубков', #51
+'тройка кубков', #52
+'четверка кубков', #53
+'пятерка кубков', #54
+'шестерка кубков', #55
+'семерка кубков', #56
+'восьмерка кубков', #57
+'девятка кубков', #58
+'десятка кубков', #59
+'паж кубков', #60
+'рыцарь кубков', #61
+'королева кубков', #62
+'король кубков', #63
+
+'туз мечей', #64
+'двойка мечей', #65
+'тройка мечей', #66
+'четверка мечей', #67
+'пятерка мечей', #68
+'шестерка мечей', #69
+'семерка мечей', #70
+'восьмерка мечей', #71
+'девятка мечей', #72
+'десятка мечей', #73
+'паж мечей', #74
+'рыцарь мечей', #75
+'королева мечей', #76
+'король мечей', #77
 )
 
 async def send_prediction(bot, message):
@@ -106,26 +114,32 @@ async def send_prediction(bot, message):
         if card_number not in card_numbers:
             card_numbers.append(card_number)
 
+
     for card_number in card_numbers:
         file = open(f'tarot_cards/{card_number}.webp', 'rb')
         await bot.send_sticker(message.chat.id, file, reply_to_message_id=message.message_id)
-        await bot.send_message(message.chat.id, cardsNames[card_number], reply_to_message_id=message.message_id)
+        await bot.send_message(message.chat.id, cardsNames[card_number], reply_to_message_id=message.message_id)  
         
     msg = 'Вот расклад для тебя ✨'
     await bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
+     
 
+
+# обновляет дату последнего предсказания пользователю по id пользователя
 def update_user(mydb, user_id):
     mycursor = mydb.cursor()
     query = "UPDATE users SET last_prediction_at = now() WHERE telegram_id = '%s';"
     mycursor.execute(query, (user_id, ))
     mydb.commit()
 
+# добавляет нового пользователя в бд с датой предсказания
 def save_user(mydb, user_id):
     mycursor = mydb.cursor()
     query = "INSERT INTO users (telegram_id, last_prediction_at) VALUES (%s, now())"
     mycursor.execute(query, (user_id, ))
     mydb.commit()
 
+# отдает ответ на вопрос "прошло ли 24 часа с момента последнего предсказания для пользователя если он был"
 def get_diff(mydb, user_id):
     mycursor = mydb.cursor()
     query = "SELECT ((UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(users.last_prediction_at)) > 60 * 60 *24) as diff FROM users WHERE telegram_id = %s"
@@ -134,10 +148,20 @@ def get_diff(mydb, user_id):
     mydb.commit()
     return result
 
+# вот этот фильтр запустит функцию echo_message(тк она находится сразу под ним) если пользователь напишет /carmelita_bot
 
-@bot.message_handler(commands=['carmelita_bot'])
+# @petya @artem kak dela?
+# @bot.message_handler(commands=['carmelita_bot'])
+@bot.message_handler(func=lambda msg: msg.entities is not None)
+def reply_to_mention(message):
+    for entity in message.entities:
+        # if entity.type == "mention" and message.text[entity.offset:entity.offset+entity.length] == botName:
+        if entity.type == "mention":
+            bot.reply_to(message, 'Вы меня вызвали?')
+
+# расклад
 @bot.message_handler(func=lambda message: message.text == 'расклад')
-async def echo_message(message):
+async def get_prediction(message):
     user_id = message.from_user.id
     myresult = get_diff(mydb, user_id)
 
@@ -153,4 +177,41 @@ async def echo_message(message):
             update_user(mydb, user_id)
             await send_prediction(bot, message)
 
+# запуск непосредственно бесконечного цикла который проверяет написал ли кто боту 
 asyncio.run(bot.polling())
+
+# вот этот фильтр запускает команду bbb если пользователь напишет /aaa
+# @bot.message_handler(commands=['aaa'])
+# async def bbb(message):
+
+# вот этот фильтр запускает команду ddd если пользователь напишет /ccc
+# @bot.message_handler(commands=['ccc'])
+# async def ddd(message):
+
+# для того что бы узнать что такое bot.message_handler и как они наботают нужно гуглить документаци о AsyncTeleBot
+
+# https://pytba.readthedocs.io/en/latest/async_version/index.html
+
+
+# PyTelegramBotAPI - это удобная библиотека Python для работы с Telegram Bot API. 
+# Для того чтобы бот откликался на упоминание в групповом чате, вы можете использовать следующий код:
+
+# import telebot
+
+# bot_token = 'YOUR_BOT_TOKEN'
+# bot = telebot.TeleBot(bot_token)
+
+# @bot.message_handler(func=lambda msg: msg.entities is not None)
+# def reply_to_mention(message):
+#     for entity in message.entities:
+#         if entity.type == "mention" and message.text[entity.offset:entity.offset+entity.length] == "@your_bot_username":
+#             bot.reply_to(message, 'Вы меня вызвали?')
+
+# bot.polling()
+
+# В этом коде:
+
+# Создается экземпляр бота с помощью вашего токена.
+# С помощью декоратора @bot.message_handler мы отлавливаем сообщения, которые содержат любые "entities" (такие как упоминания).
+# В функции reply_to_mention проходит проверка каждого "entity" в сообщении на наличие упоминания бота. Если бот упоминается, он отвечает на сообщение "Вы меня вызвали?".
+# Не забудьте заменить 'YOUR_BOT_TOKEN' на ваш собственный токен бота и "@your_bot_username" на имя вашего бота. После запуска этого кода, каждый раз когда кто-то упоминает бота в групповом чате, он будет отвечать.

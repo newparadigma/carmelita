@@ -1,8 +1,33 @@
 version: "3"
 services:
   app:
-    image: python:3
+    image: python:3.9.17-alpine
+    container_name: crmlt-app
+    # restart: unless-stopped # uncomment to production
     working_dir: /home/python/app
     volumes:
     - ./:/home/python/app
-    command: bash -c "pip install --no-cache-dir -r requirements.txt && python bot.py"
+    command: ash -c "pip install --no-cache-dir -r requirements.txt && python bot.py"
+    depends_on:
+    - mysql
+  mysql:
+    image: mysql:5.7
+    container_name: crmlt-mysql
+    # restart: unless-stopped # uncomment to production
+    command: --init-file /data/application/init_mysql.sql
+    volumes:
+    - ./docker/init_mysql.sql:/data/application/init_mysql.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: homestead
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+  adminer:
+    image: dockette/adminer:mysql
+    container_name: crmlt-adminer
+    ports:
+      - "8080:80"

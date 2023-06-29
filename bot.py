@@ -7,7 +7,7 @@ import asyncio
 from random import randrange
 import mysql.connector
 
-mydb = mysql.connector.connect(
+db = mysql.connector.connect(
     host="mysql",
     user="homestead",
     password="homestead",
@@ -16,9 +16,11 @@ mydb = mysql.connector.connect(
 
 load_dotenv()
 
-bot = AsyncTeleBot(os.getenv('BOT_TOKEN'))
+bot_token = os.getenv('BOT_TOKEN')
+bot_name = os.getenv('BOT_NAME')
+bot = AsyncTeleBot(bot_token)
 
-cardsNames = (
+card_names = (
 'шут', #0
 'маг',#1
 'жрица', #2
@@ -116,50 +118,50 @@ async def send_prediction(bot, message):
         file = open(f'tarot_cards/{card_number}.webp', 'rb')
         await bot.send_sticker(message.chat.id, file, reply_to_message_id=message.message_id)
         order += 1
-        msg =  msg + str(order) + '. ' + cardsNames[card_number].capitalize() + "\n"
+        msg =  msg + str(order) + '. ' + card_names[card_number].capitalize() + "\n"
     msg += "\n" + "✨✨✨✨✨✨✨✨" 
     await bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
      
 # обновляет дату последнего предсказания пользователю по id пользователя
-def update_user(mydb, user_id):
-    mycursor = mydb.cursor()
+def update_user(db, user_id):
+    cursor = db.cursor()
     query = "UPDATE users SET last_prediction_at = now() WHERE telegram_id = '%s';"
-    mycursor.execute(query, (user_id, ))
-    mydb.commit()
+    cursor.execute(query, (user_id, ))
+    db.commit()
 
 # добавляет нового пользователя в бд с датой предсказания
-def save_user(mydb, user_id):
-    mycursor = mydb.cursor()
+def save_user(db, user_id):
+    cursor = db.cursor()
     query = "INSERT INTO users (telegram_id, last_prediction_at) VALUES (%s, now())"
-    mycursor.execute(query, (user_id, ))
-    mydb.commit()
+    cursor.execute(query, (user_id, ))
+    db.commit()
 
 # отдает ответ на вопрос "прошло ли 24 часа с момента последнего предсказания для пользователя если он был"
-def get_diff(mydb, user_id):
-    mycursor = mydb.cursor()
+def get_diff(db, user_id):
+    cursor = db.cursor()
     query = "SELECT ((UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(users.last_prediction_at)) > 60 * 60 *24) as diff FROM users WHERE telegram_id = %s"
-    mycursor.execute(query, (user_id, ))
-    result = mycursor.fetchone()
-    mydb.commit()
+    cursor.execute(query, (user_id, ))
+    result = cursor.fetchone()
+    db.commit()
     return result
 
 # расклад
-@bot.message_handler(commands=['carmelita_bot'])
+@bot.message_handler(func=lambda message: message.text and bot_name in message.text)
 @bot.message_handler(func=lambda message: message.text == 'расклад')
 async def get_prediction(message):
     user_id = message.from_user.id
-    myresult = get_diff(mydb, user_id)
+    result = get_diff(db, user_id)
 
-    if myresult is None:
-        save_user(mydb, user_id)
+    if result is None:
+        save_user(db, user_id)
         await send_prediction(bot, message)
     else:
-        diff = myresult[0]
+        diff = result[0]
         if diff == 0:
             msg = 'Колоде нужно отдохнуть 😌'
             await bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
         else:
-            update_user(mydb, user_id)
+            update_user(db, user_id)
             await send_prediction(bot, message)
 
 # запуск непосредственно бесконечного цикла который проверяет написал ли кто боту 

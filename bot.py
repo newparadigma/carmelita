@@ -144,7 +144,7 @@ def get_diff(mydb, user_id):
     return result
 
 # расклад
-@bot.message_handler(commands=['carmelita_bot'])
+@bot.message_handler(func=lambda message: message.text and os.getenv('BOT_NAME') in message.text)
 @bot.message_handler(func=lambda message: message.text == 'расклад')
 async def get_prediction(message):
     user_id = message.from_user.id

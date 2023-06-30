@@ -120,7 +120,7 @@ async def send_prediction(bot, message):
         order += 1
         msg =  msg + str(order) + '. ' + card_names[card_number].capitalize() + "\n"
     msg += "\n" + "✨✨✨✨✨✨✨✨" 
-    await bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
+    await bot.send_message(message.chat.id, msg)
      
 # обновляет дату последнего предсказания пользователю по id пользователя
 def update_user(db, user_id):
@@ -159,7 +159,7 @@ async def get_prediction(message):
         diff = result[0]
         if diff == 0:
             msg = 'Колоде нужно отдохнуть 😌'
-            await bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
+            await bot.send_message(message.chat.id, msg)
         else:
             update_user(db, user_id)
             await send_prediction(bot, message)

@@ -116,7 +116,7 @@ async def send_prediction(bot, message):
     order = 0
     for card_number in card_numbers:
         file = open(f'tarot_cards/{card_number}.webp', 'rb')
-        await bot.send_sticker(message.chat.id, file, reply_to_message_id=message.message_id)
+        await bot.send_sticker(message.chat.id, file)
         order += 1
         msg =  msg + str(order) + '. ' + card_names[card_number].capitalize() + "\n"
     msg += "\n" + "✨✨✨✨✨✨✨✨" 
@@ -132,7 +132,7 @@ def update_user(db, user_id):
 # добавляет нового пользователя в бд с датой предсказания
 def save_user(db, user_id):
     cursor = db.cursor()
-    query = "INSERT INTO users (telegram_id, last_prediction_at) VALUES (%s, now())"
+    query = "INSERT INTO users (telegram_id, last_prediction_at) VALUES (%s, now())" 
     cursor.execute(query, (user_id, ))
     db.commit()
 

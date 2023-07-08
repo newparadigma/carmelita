@@ -149,6 +149,7 @@ def get_diff(db, user_id):
 # расклад
 @bot.message_handler(func=lambda message: message.text and bot_name in message.text)
 @bot.message_handler(func=lambda message: message.text == 'расклад')
+@bot.message_handler(func=lambda message: message.text == 'Расклад')
 async def get_prediction(message):
     user_id = message.from_user.id
     result = get_diff(db, user_id)

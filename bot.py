@@ -117,7 +117,7 @@ async def send_prediction(bot, message):
     order = 0
     for card_number in card_numbers:
         file = open(f'tarot_cards/{card_number}.webp', 'rb')
-        await bot.send_sticker(message.chat.id, file)
+        await bot.send_sticker(message.chat.id, file, reply_to_message_id=message.message_id)
         order += 1
         msg =  msg + str(order) + '. ' + card_names[card_number].capitalize() + "\n"
     msg += "\n" + "✨✨✨✨✨✨✨✨" 

@@ -112,7 +112,8 @@ async def send_prediction(bot, message):
         if card_number not in card_numbers:
             card_numbers.append(card_number)
 
-    msg =  "Вот расклад для тебя ✨\n\n"
+    user_name = message.from_user.username
+    msg = f"Вот #расклад для тебя @{user_name} ✨\n\n"
     order = 0
     for card_number in card_numbers:
         file = open(f'tarot_cards/{card_number}.webp', 'rb')

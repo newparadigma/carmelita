@@ -112,7 +112,8 @@ async def send_prediction(bot, message):
         if card_number not in card_numbers:
             card_numbers.append(card_number)
 
-    msg =  "Вот расклад для тебя ✨\n\n"
+    user_name = message.from_user.username
+    msg = f"Вот #расклад для тебя @{user_name} ✨\n\n"
     order = 0
     for card_number in card_numbers:
         file = open(f'tarot_cards/{card_number}.webp', 'rb')
@@ -120,7 +121,7 @@ async def send_prediction(bot, message):
         order += 1
         msg =  msg + str(order) + '. ' + card_names[card_number].capitalize() + "\n"
     msg += "\n" + "✨✨✨✨✨✨✨✨" 
-    await bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
+    await bot.send_message(message.chat.id, msg)
      
 # обновляет дату последнего предсказания пользователю по id пользователя
 def update_user(db, user_id):
@@ -132,7 +133,7 @@ def update_user(db, user_id):
 # добавляет нового пользователя в бд с датой предсказания
 def save_user(db, user_id):
     cursor = db.cursor()
-    query = "INSERT INTO users (telegram_id, last_prediction_at) VALUES (%s, now())"
+    query = "INSERT INTO users (telegram_id, last_prediction_at) VALUES (%s, now())" 
     cursor.execute(query, (user_id, ))
     db.commit()
 
@@ -148,6 +149,7 @@ def get_diff(db, user_id):
 # расклад
 @bot.message_handler(func=lambda message: message.text and bot_name in message.text)
 @bot.message_handler(func=lambda message: message.text == 'расклад')
+@bot.message_handler(func=lambda message: message.text == 'Расклад')
 async def get_prediction(message):
     user_id = message.from_user.id
     result = get_diff(db, user_id)
@@ -159,7 +161,7 @@ async def get_prediction(message):
         diff = result[0]
         if diff == 0:
             msg = 'Колоде нужно отдохнуть 😌'
-            await bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
+            await bot.send_message(message.chat.id, msg)
         else:
             update_user(db, user_id)
             await send_prediction(bot, message)

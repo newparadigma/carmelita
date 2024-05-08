@@ -28,5 +28,7 @@ services:
   adminer:
     image: newparadigma/adminer-one-click-login:mysql
     container_name: crmlt-adminer
+    volumes:
+      - ./docker/adminer-servers.php/:/var/www/html/adminer-servers.php
     ports:
       - "8080:80"

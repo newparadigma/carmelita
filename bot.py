@@ -2,8 +2,7 @@
 
 import os
 from dotenv import load_dotenv
-from telebot.async_telebot import AsyncTeleBot
-import asyncio
+import telebot
 from random import randrange
 import mysql.connector
 
@@ -18,7 +17,7 @@ load_dotenv()
 
 bot_token = os.getenv('BOT_TOKEN')
 bot_name = os.getenv('BOT_NAME')
-bot = AsyncTeleBot(bot_token)
+bot = telebot.TeleBot(bot_token)
 
 card_names = (
 'шут', #0
@@ -105,7 +104,7 @@ card_names = (
 'король мечей', #77
 )
 
-async def send_prediction(bot, message):
+def send_prediction(bot, message):
     card_numbers = []
     while (len(card_numbers) < 3):
         card_number = randrange(77)
@@ -116,11 +115,11 @@ async def send_prediction(bot, message):
     order = 0
     for card_number in card_numbers:
         file = open(f'tarot_cards/{card_number}.webp', 'rb')
-        await bot.send_sticker(message.chat.id, file, reply_to_message_id=message.message_id)
+        bot.send_sticker(message.chat.id, file, reply_to_message_id=message.message_id)
         order += 1
         msg =  msg + str(order) + '. ' + card_names[card_number].capitalize() + "\n"
     msg += "\n" + "✨✨✨✨✨✨✨✨" 
-    await bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
+    bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
      
 # обновляет дату последнего предсказания пользователю по id пользователя
 def update_user(db, user_id):
@@ -148,21 +147,20 @@ def get_diff(db, user_id):
 # расклад
 @bot.message_handler(func=lambda message: message.text and bot_name in message.text)
 @bot.message_handler(func=lambda message: message.text == 'расклад')
-async def get_prediction(message):
+def get_prediction(message):
     user_id = message.from_user.id
     result = get_diff(db, user_id)
 
     if result is None:
         save_user(db, user_id)
-        await send_prediction(bot, message)
+        send_prediction(bot, message)
     else:
         diff = result[0]
         if diff == 0:
             msg = 'Колоде нужно отдохнуть 😌'
-            await bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
+            bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
         else:
             update_user(db, user_id)
-            await send_prediction(bot, message)
+            send_prediction(bot, message)
 
-# запуск непосредственно бесконечного цикла который проверяет написал ли кто боту 
-asyncio.run(bot.polling())
+bot.infinity_polling()

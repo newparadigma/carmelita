@@ -1,17 +1,16 @@
-version: "3"
 services:
   app:
     image: python:3.9.17-alpine
     container_name: crmlt-app
     # restart: unless-stopped # uncomment to production
-    working_dir: /home/python/app
+    working_dir: /usr/src/app
     volumes:
-    - ./:/home/python/app
+    - ./:/usr/src/app
     command: ash -c "pip install --no-cache-dir -r requirements.txt && python bot.py"
     depends_on:
     - mysql
   mysql:
-    image: mysql:5.7
+    image: biarms/mysql:5.7
     container_name: crmlt-mysql
     # restart: unless-stopped # uncomment to production
     command: --init-file /data/application/init_mysql.sql
@@ -27,7 +26,9 @@ services:
     ports:
       - "3306:3306"
   adminer:
-    image: dockette/adminer:mysql
+    image: newparadigma/adminer-one-click-login:mysql
     container_name: crmlt-adminer
+    volumes:
+      - ./docker/adminer-servers.php/:/var/www/html/adminer-servers.php
     ports:
       - "8080:80"

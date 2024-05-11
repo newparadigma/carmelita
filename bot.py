@@ -120,7 +120,7 @@ def send_prediction(bot, message):
         msg =  msg + str(order) + '. ' + card_names[card_number].capitalize() + "\n"
     msg += "\n" + "✨✨✨✨✨✨✨✨" 
     bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
-     
+
 # обновляет дату последнего предсказания пользователю по id пользователя
 def update_user(db, user_id):
     cursor = db.cursor()
@@ -146,7 +146,7 @@ def get_diff(db, user_id):
 
 # расклад
 @bot.message_handler(func=lambda message: message.text and bot_name in message.text)
-@bot.message_handler(func=lambda message: message.text == 'расклад')
+@bot.message_handler(regexp='[рР][аА][сС][кК][лЛ][аА][дД]')
 def get_prediction(message):
     user_id = message.from_user.id
     result = get_diff(db, user_id)

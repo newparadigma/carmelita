@@ -2,6 +2,10 @@
 
 ## A telegram bot predicting the future by tarot cards
 
+Link to official bot - [Carmelita](https://t.me/carmelita_bot)
+You can ask her about your future, and she will predict it using tarot cards.  
+Or add her to your group and let her predict the future of your friends.
+
 ## Install
 
 1. Copy environment files

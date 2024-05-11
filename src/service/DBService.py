@@ -1,7 +1,8 @@
+from service.MysqlService import MysqlService
 
-class service.DBService:
+class DBService:
   def __init__(self):
-    self.dbService = repository.mysql()
+    self.dbService = MysqlService()
 
     def update_user_last_prediction_at(self, user_id):
         self.dbService.update_user_last_prediction_at(user_id)

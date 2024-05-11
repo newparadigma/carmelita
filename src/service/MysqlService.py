@@ -1,8 +1,8 @@
-import repository.MysqlRepository as repository
+from repository.MysqlRepository import MysqlRepository as repository
 
-class service.MysqlService:
+class MysqlService:
   def __init__(self):
-    self.repository = repository.mysql()
+    self.repository = repository()
 
     def update_user_last_prediction_at(self, user_id):
         self.repository.update_user_last_prediction_at(user_id)

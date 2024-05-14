@@ -7,13 +7,6 @@ from random import randrange
 # import mysql.connector
 from service.DBService import DBService
 
-# db = mysql.connector.connect(
-#     host="mysql",
-#     user="homestead",
-#     password="homestead",
-#     database="homestead"
-# )
-
 dbService = DBService()
 
 load_dotenv()
@@ -123,29 +116,6 @@ def send_prediction(bot, message):
         msg =  msg + str(order) + '. ' + card_names[card_number].capitalize() + "\n"
     msg += "\n" + "✨✨✨✨✨✨✨✨" 
     bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
-
-# обновляет дату последнего предсказания пользователю по id пользователя
-# def update_user_last_prediction_at(db, user_id):
-#     cursor = db.cursor()
-#     query = "UPDATE users SET last_prediction_at = now() WHERE telegram_id = '%s';"
-#     cursor.execute(query, (user_id, ))
-#     db.commit()
-
-# добавляет нового пользователя в бд с датой предсказания
-# def DBService.save_user(db, user_id):
-#     cursor = db.cursor()
-#     query = "INSERT INTO users (telegram_id, last_prediction_at) VALUES (%s, now())"
-#     cursor.execute(query, (user_id, ))
-#     db.commit()
-
-# отдает ответ на вопрос "прошло ли 24 часа с момента последнего предсказания для пользователя если он был"
-# def get_diff(db, user_id):
-#     cursor = db.cursor()
-#     query = "SELECT ((UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(users.last_prediction_at)) > 60 * 60 *24) as diff FROM users WHERE telegram_id = %s"
-#     cursor.execute(query, (user_id, ))
-#     result = cursor.fetchone()
-#     db.commit()
-#     return result
 
 # расклад
 @bot.message_handler(func=lambda message: message.text and bot_name in message.text)

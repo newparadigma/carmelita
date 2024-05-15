@@ -4,10 +4,10 @@ import os
 from dotenv import load_dotenv
 import telebot
 from random import randrange
-from service.DBService import DBService
+from service.UserService import UserService
 from service.PredictionService import PredictionService
 
-dbService = DBService()
+userService = UserService()
 predictionService = PredictionService()
 
 load_dotenv()
@@ -29,14 +29,14 @@ def send_prediction(bot, message):
 @bot.message_handler(regexp='^[рР][аА][сС][кК][лЛ][аА][дД]$')
 def get_prediction(message):
     user_id = message.from_user.id
-    status = dbService.check_user_data(user_id)
+    status = userService.check_user_data(user_id)
     print(status)
     if status == 'user_not_found':
         send_prediction(bot, message)
-        dbService.save_new_user(user_id)
+        userService.save_new_user(user_id)
     if status == 'allowed_to_predict':
         send_prediction(bot, message)
-        dbService.update_user_last_prediction_at(user_id)
+        userService.update_user_last_prediction_at(user_id)
     
     if status == 'not_allowed_to_predict':
         msg = 'Колоде нужно отдохнуть 😌'

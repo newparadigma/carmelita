@@ -1,47 +1,39 @@
 #!/usr/bin/python
 
-import os
-from dotenv import load_dotenv
-import telebot
-from random import randrange
 from service.UserService import UserService
 from service.PredictionService import PredictionService
+from service.BotService import BotService
 
 userService = UserService()
 predictionService = PredictionService()
+botService = BotService()
 
-load_dotenv()
-
-bot_token = os.getenv('BOT_TOKEN')
-bot_name = os.getenv('BOT_NAME')
-bot = telebot.TeleBot(bot_token)
-
-def send_prediction(bot, message):
-    prediction = predictionService.makePrediction()
-    for i in range(len(prediction.cards)):
-        file = open(f'tarot_cards/{prediction.cards[i]}', 'rb')
-        bot.send_sticker(message.chat.id, file, reply_to_message_id=message.message_id)
-
-    bot.send_message(message.chat.id, str(prediction), reply_to_message_id=message.message_id)
+bot = botService.bot
+bot_name = botService.bot_name
 
 # расклад
 @bot.message_handler(func=lambda message: message.text and bot_name in message.text)
 @bot.message_handler(regexp='^[рР][аА][сС][кК][лЛ][аА][дД]$')
 def get_prediction(message):
     user_id = message.from_user.id
+    chat_id = message.chat.id
+    reply_to_message_id = message.message_id
     status = userService.check_user_data(user_id)
-    print(status)
+
     if status == 'user_not_found':
-        send_prediction(bot, message)
+        prediction = predictionService.makePrediction()
+        botService.send_prediction(chat_id, reply_to_message_id, prediction)
         userService.save_new_user(user_id)
+
     if status == 'allowed_to_predict':
-        send_prediction(bot, message)
+        prediction = predictionService.makePrediction()
+        botService.send_prediction(chat_id, reply_to_message_id, prediction)
         userService.update_user_last_prediction_at(user_id)
     
     if status == 'not_allowed_to_predict':
         msg = 'Колоде нужно отдохнуть 😌'
-        bot.send_message(message.chat.id, msg, reply_to_message_id=message.message_id)
-    
+        botService.send_message(chat_id, msg, reply_to_message_id)
+
     exit()
 
 bot.infinity_polling()

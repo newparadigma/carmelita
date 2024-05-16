@@ -9,6 +9,7 @@ class Prediction:
         text = self.text1
         for i in range(len(self.cards)):
             card_name = os.path.splitext(self.cards[i])[0].capitalize()
+            card_name = card_name.replace('_', ' ')
             text += str(i + 1) + '. ' + card_name + "\n"
         text += self.text2
         return text

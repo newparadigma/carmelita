@@ -18,6 +18,7 @@ def get_prediction(message):
     user_id = message.from_user.id
     chat_id = message.chat.id
     reply_to_message_id = message.message_id
+    
     status = userService.check_user_data(user_id)
 
     if status == 'user_not_found':
